@@ -17,6 +17,7 @@ SOURCES += main.cpp\
     MaFenetre.cpp
 
 HEADERS  += mainwindow.h \
+    MaFenetre.h \
     MaFenetre.h
 
 FORMS    += mainwindow.ui
