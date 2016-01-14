@@ -14,7 +14,8 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    traiterImage.cpp
+    traiterImage.cpp \
+    algo.cpp
 
 HEADERS  += mainwindow.h \
     traiterImage.h
