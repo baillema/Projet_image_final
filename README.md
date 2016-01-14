@@ -19,13 +19,17 @@ en cours
 ------
 en cours
 - découpage d'une zone
+pas commencé
 ------
 -  affichage de la couleur en format RGB ou YUV
+pas commencé
 ------
 - transformer une image couleur en niveau de gris
+pas commencé
 ------
 en cours
 - floutage d'une image
 ------
 en cours
 - fusion de deux images
+schéma de fusion à définir
