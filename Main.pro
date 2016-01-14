@@ -14,6 +14,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+    MaFenetre.cpp \
     MaFenetre.cpp
 
 HEADERS  += mainwindow.h \
