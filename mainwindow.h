@@ -17,7 +17,8 @@ using namespace std;
 #include"traiterImage.h"
 
 
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 
@@ -29,7 +30,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-
 private slots:
 protected slots:
     //Les slots
@@ -37,7 +37,6 @@ protected slots:
     void enregistrer();  //enregistrer l'image
     void about();
     void fermer();  //fermer l'image
-
 
 private:
 

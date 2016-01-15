@@ -18,11 +18,8 @@
 using namespace cv;
 using namespace std;
 
-
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+//Constructeur pour la
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     creer_shortcut();
@@ -30,13 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 }
 
+//Destructeur de la fenêtre
 MainWindow::~MainWindow()
 {
     delete ui;
-
 }
 
-
+//Creation des fonctions de raccourci clavier
 void MainWindow::creer_shortcut()
 {
     ui->actionOuvrir->setShortcut(tr("Ctrl+O"));
@@ -44,45 +41,48 @@ void MainWindow::creer_shortcut()
     ui->actionFermer->setShortcut(tr("Ctrl+Q"));
 }
 
+//Connection des trigger avec des fonctions
 void MainWindow::creer_connexions()
 {
     QObject::connect(ui->actionOuvrir, SIGNAL(triggered()), this, SLOT(ouvrir()));
     QObject::connect(ui->actionFermer, SIGNAL(triggered()), this, SLOT(fermer()));
     QObject::connect(ui->actionEnregistrer, SIGNAL(triggered()), this, SLOT(enregistrer()));
-
 }
 
+//Chargement d'une image en fonction de sa taille
 void MainWindow::loadImage()
 {
     QSize size(ui->label_image->width(), ui->label_image->height());
     QImage image2 = image1.scaled(size, Qt::KeepAspectRatio);
     ui->label_image->setPixmap(QPixmap::fromImage(image2));
-
 }
 
-
-
+//Ouverture et affichage d'une image
 void MainWindow::ouvrir()
 {
     QString fichier = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "Images (*.png *.gif *.jpg *.jpeg)");
-    if(fichier!=NULL)
+
+    if(fichier != NULL)
     {
         QImage image(fichier);
         image1 = image;
+
         if (image1.isNull())
         {
-            QMessageBox::information(this, "MainWindow", tr("ne peut pas être chargé").arg(fichier));
+            QMessageBox::information(this, "MainWindow", tr("Erreur lors du chargement de l'image").arg(fichier));
             return;
         }
+
         int fact = image1.depth()/8;
         traiterImage = new TraiterImage(image1.height(), fact*image1.width());
         this->loadImage();
 
-        //Afficher les histogrammes
+        //Affichage des histogrammes
         const char*c = fichier.toStdString().c_str();
         Mat src = imread(c);
         vector<Mat>tab = histogramme(src);
-        for(int i = 0; i<3; i++){
+        for(int i = 0; i<3; i++)
+        {
             if(i == 0)
             {
                 QPixmap image_histo = Mat2QPixmap(tab[i]);
@@ -92,9 +92,9 @@ void MainWindow::ouvrir()
                 QImage image2 = image_histo.toImage();
                 image2.scaled(size, Qt::KeepAspectRatio);
                 ui->label_histo1->setPixmap(QPixmap::fromImage(image2));
-
             }
-            else{
+            else
+            {
                 if(i == 1)
                 {
                     QPixmap image_histo = Mat2QPixmap(tab[i]);
@@ -104,8 +104,8 @@ void MainWindow::ouvrir()
                     QImage image2 = image_histo.toImage();
                     image2.scaled(size, Qt::KeepAspectRatio);
                     ui->label_histo2->setPixmap(QPixmap::fromImage(image2));
-
                 }
+
                 else
                 {
                     QPixmap image_histo = Mat2QPixmap(tab[i]);
@@ -115,40 +115,30 @@ void MainWindow::ouvrir()
                     QImage image2 = image_histo.toImage();
                     image2.scaled(size, Qt::KeepAspectRatio);
                     ui->label_histo3->setPixmap(QPixmap::fromImage(image2));
-
                 }
             }
-
-
-
-
-
         }
-
-
-
-
     }
 
-   else{
-          QMessageBox::information(this, "Fichier", "Vous n'avez rien sélectiooné\n");
-
-
+   else
+    {
+          QMessageBox::information(this, "Fichier", "Vous n'avez rien sélectionné.\n");
     }
-
 }
 
+//Enregistrement d'une image
 void MainWindow::enregistrer()
 {
     QString fichier = QFileDialog::getSaveFileName(this, "Enregistrer le fichier", fileName, "Images (*.png *.gif *.jpg *.jpeg)");
     QFile file(fichier);
-    if(!file.open(QIODevice::WriteOnly)){
+    if(!file.open(QIODevice::WriteOnly))
+    {
         return;
     }
+
     QImage image = this->image1;
     QString extension = QFileInfo(fichier).suffix();
     image.save(fichier);
-
 }
 
 void MainWindow::about()
@@ -163,7 +153,6 @@ void MainWindow::fermer()
 
 QPixmap MainWindow::IPlImage2QImage(const IplImage *newImage)
 {
-
     QPixmap monPixmap;
     QImage qtemp;
     if (newImage && cvGetSize(newImage).width>0)
@@ -179,19 +168,13 @@ QPixmap MainWindow::IPlImage2QImage(const IplImage *newImage)
                 uint*p = (uint*)qtemp.scanLine(y)+x;
                 *p = qRgb(data[x*newImage->nChannels+2],data[x*newImage->nChannels+1],data[x*newImage->nChannels]);
             }
-
         }
-
-
-
     }
 
     monPixmap = QPixmap::fromImage(qtemp);
 
     return monPixmap;
 }
-
-
 
 vector<Mat> MainWindow::histogramme(Mat &img)
 {
@@ -214,16 +197,18 @@ vector<Mat> MainWindow::histogramme(Mat &img)
             for(int k = 0; k<nc; k++)
             {
                 uchar val;
-                if(nc == 1){
+
+                if(nc == 1)
+                {
                     val = img.at<uchar>(i,j);
                 }
-                else{
+
+                else
+                {
                     val = img.at<Vec3b>(i,j)[k];
                 }
 
                 hist[k].at<int>(val) += 1;
-
-
             }
         }
     }
@@ -233,24 +218,23 @@ vector<Mat> MainWindow::histogramme(Mat &img)
     {
         for(int j=0;j<bins-1;j++)
         {
-           if( hist[i].at<int>(j) > hmax[i] ){
+           if( hist[i].at<int>(j) > hmax[i] )
+           {
 
                hmax[i] = hist[i].at<int>(j);
            }
-           else{
+           //Wut ?
+           else
+           {
 
            }
         }
     }
 
-
     //Nouvel Ajout a modifier aprés
     //QLabel *myimage = new QLabel();
    // myimage->setBackgroundRole(QPalette::Dark);
    // myimage->setScaledContents(true);
-
-
-
 
     //const char*wname[3] = {"blue", "green", "red"};
     Scalar colors[3] = {Scalar(255,0,0), Scalar(0,255,0), Scalar(0,0,255)};
@@ -266,38 +250,21 @@ vector<Mat> MainWindow::histogramme(Mat &img)
             else
                 s = colors[i];
 
-            line(
-                        canavas[i],
-                        Point(j,rows),
-                        Point(j,rows-(hist[i].at<int>(j)*rows/hmax[i])),
-                        s,//nc = 1  ? Scalar(200,200,200): colors[i],
-                        1, 8, 0
-                        );
+            line(canavas[i], Point(j,rows), Point(j,rows-(hist[i].at<int>(j)*rows/hmax[i])), s, 1, 8, 0); //nc = 1  ? Scalar(200,200,200): colors[i],
         }
+    // imshow(nc ==1 ? "value" : wname[i], canavas[i]);}
+    //  QLabel label(ui->Tab1);
+    //label.setPixmap(Mat2QPixmap(canavas[i]));
 
-
-
-      // imshow(nc ==1 ? "value" : wname[i], canavas[i]);}
-      //  QLabel label(ui->Tab1);
-       //label.setPixmap(Mat2QPixmap(canavas[i]));
-
-         //QPixmap pix = Mat2QPixmap(canavas[i]);
-       //  int fact1 = pix.depth()/8;
-       //  traiterImage = new TraiterImage(pix.height(), fact1*pix.width() );
-  //      myimage->setPixmap(pix);
+    //QPixmap pix = Mat2QPixmap(canavas[i]);
+    //  int fact1 = pix.depth()/8;
+    //  traiterImage = new TraiterImage(pix.height(), fact1*pix.width() );
+    //      myimage->setPixmap(pix);
     //    ui->verticalLayout->addWidget(myimage);
-        //load image histogramme
-
-
-
+    //load image histogramme
     }
 
-
     return canavas;
-
-
-
-
 }
 
 
@@ -308,7 +275,6 @@ QPixmap MainWindow::Mat2QPixmap(const Mat &mat)
     cvtColor(mat, rgb, CV_BGR2RGB);
     p.convertFromImage(QImage((const unsigned char*)(rgb.data), rgb.cols, rgb.rows, QImage::Format_RGB888));
     return p;
-
 }
 
 void MainWindow::afficher_histogramme()

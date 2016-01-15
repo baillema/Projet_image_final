@@ -23,7 +23,7 @@ private:
     //************Méthodes************************
 
     void Allouer();
-    void Liberrer();
+    void Liberer();
 
 public:
     TraiterImage();
