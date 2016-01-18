@@ -37,6 +37,9 @@ protected slots:
     void enregistrer();  //enregistrer l'image
     void about();
     void fermer();  //fermer l'image
+    void noir_et_blanc(); //mettre une image en noir et blanc
+    void inversion();
+    void flou();
 
 private:
 

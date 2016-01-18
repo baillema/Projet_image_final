@@ -47,6 +47,9 @@ void MainWindow::creer_connexions()
     QObject::connect(ui->actionOuvrir, SIGNAL(triggered()), this, SLOT(ouvrir()));
     QObject::connect(ui->actionFermer, SIGNAL(triggered()), this, SLOT(fermer()));
     QObject::connect(ui->actionEnregistrer, SIGNAL(triggered()), this, SLOT(enregistrer()));
+    QObject::connect(ui->actionNoir_et_blanc, SIGNAL(triggered()), this, SLOT(noir_et_blanc()));
+    QObject::connect(ui->actionInversion, SIGNAL(triggered()), this, SLOT(inversion()));
+    QObject::connect(ui->actionFlou, SIGNAL(triggered()), this, SLOT(flou()));
 }
 
 //Chargement d'une image en fonction de sa taille
@@ -139,6 +142,81 @@ void MainWindow::enregistrer()
     QImage image = this->image1;
     QString extension = QFileInfo(fichier).suffix();
     image.save(fichier);
+}
+
+//Filtre noir et blanc
+void MainWindow::noir_et_blanc()
+{
+    QImage imgCpy = image1;
+
+    for(int i = 0; i<imgCpy.width(); i++)
+    {
+        for(int j = 0; j<imgCpy.height(); j++)
+        {
+            QRgb rgb = imgCpy.pixel(i,j);
+
+            //Calcul par moyenne
+            int res = (qGreen(rgb)+qRed(rgb)+qBlue(rgb))/3;
+
+            //Calcul par maximun
+            //int resM = max(max(qGreen(rgb),qRed(rgb)),qBlue(rgb));
+
+            imgCpy.setPixel(i,j,qRgb(res,res,res));
+        }
+    }
+
+    //Adaptation à la taille de la fenetre
+    QSize size(ui->label_image->width(), ui->label_image->height());
+    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+    //Affichage
+    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+}
+
+//Filtre d'inversion
+void MainWindow::inversion()
+{
+    QImage imgCpy = image1;
+
+    imgCpy.invertPixels();
+
+    //Adaptation à la taille de la fenetre
+    QSize size(ui->label_image->width(), ui->label_image->height());
+    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+    //Affichage
+    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+}
+
+//Filtre de flou
+void MainWindow::flou()
+{
+    QImage imgCpy = image1;
+
+    for(int i = 1; i<imgCpy.width()-1;i++)
+    {
+        for(int j = 1; j<imgCpy.height()-1;j++)
+        {
+            QRgb gauche = imgCpy.pixel(i-1,j);
+            QRgb droite = imgCpy.pixel(i+1,j);
+            QRgb haut = imgCpy.pixel(i,j+1);
+            QRgb bas = imgCpy.pixel(i,j-1);
+
+            int resR = (qRed(haut)+qRed(bas)+qRed(gauche)+qRed(droite))/4;
+            int resG = (qGreen(haut)+qGreen(bas)+qGreen(gauche)+qGreen(droite))/4;
+            int resB = (qBlue(haut)+qBlue(bas)+qBlue(gauche)+qBlue(droite))/4;
+
+            imgCpy.setPixel(i,j, qRgb(resR, resG, resB));
+        }
+    }
+
+    //Adaptation à la taille de la fenetre
+    QSize size(ui->label_image->width(), ui->label_image->height());
+    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+    //Affichage
+    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+
 }
 
 void MainWindow::about()
@@ -267,7 +345,6 @@ vector<Mat> MainWindow::histogramme(Mat &img)
     return canavas;
 }
 
-
 QPixmap MainWindow::Mat2QPixmap(const Mat &mat)
 {
     Mat rgb;
@@ -277,9 +354,4 @@ QPixmap MainWindow::Mat2QPixmap(const Mat &mat)
     return p;
 }
 
-void MainWindow::afficher_histogramme()
-{
-
-
-}
 

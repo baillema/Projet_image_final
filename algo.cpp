@@ -114,9 +114,6 @@ int algo(int argc, char *argv[])
 
     imageCpy = imageCpy1;
 
-
-
-
     QString enregistre = QFileDialog::getSaveFileName(NULL, "Enregistrer un fichier", QString(), "Images (*.png *.gif *.jpg *.jpeg)");
 
     imageCpy.save(enregistre);

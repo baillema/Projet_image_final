@@ -119,6 +119,9 @@
     <property name="title">
      <string>Filtres</string>
     </property>
+    <addaction name="actionNoir_et_blanc"/>
+    <addaction name="actionInversion"/>
+    <addaction name="actionFlou"/>
    </widget>
    <widget class="QMenu" name="menuAide">
     <property name="title">
@@ -152,6 +155,21 @@
   <action name="actionFermer">
    <property name="text">
     <string>Fermer</string>
+   </property>
+  </action>
+  <action name="actionNoir_et_blanc">
+   <property name="text">
+    <string>Noir et blanc</string>
+   </property>
+  </action>
+  <action name="actionInversion">
+   <property name="text">
+    <string>Inversion</string>
+   </property>
+  </action>
+  <action name="actionFlou">
+   <property name="text">
+    <string>Flou</string>
    </property>
   </action>
  </widget>
