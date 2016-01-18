@@ -24,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     creer_shortcut();
     creer_connexions();
-
 }
 
 //Destructeur de la fenêtre
@@ -50,6 +49,7 @@ void MainWindow::creer_connexions()
     QObject::connect(ui->actionNoir_et_blanc, SIGNAL(triggered()), this, SLOT(noir_et_blanc()));
     QObject::connect(ui->actionInversion, SIGNAL(triggered()), this, SLOT(inversion()));
     QObject::connect(ui->actionFlou, SIGNAL(triggered()), this, SLOT(flou()));
+    QObject::connect(ui->actionContraste, SIGNAL(triggered()), this, SLOT(contraste()));
 }
 
 //Chargement d'une image en fonction de sa taille
@@ -216,7 +216,40 @@ void MainWindow::flou()
 
     //Affichage
     ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+}
 
+//Filtre de contraste (correspond à l'accentuation des contours)
+void MainWindow::contraste()
+{
+    //TODO : modifier le pourcentage de contraste (ici 50) en le demandant à l'utilisateur
+    //Ne fonctionne pas : http://xmcvs.free.fr/astroart/Chapitre4.pdf
+
+    QImage imgCpy = image1;
+
+    for(int i = 1; i<imgCpy.width()-1;i++)
+    {
+        for(int j = 1; j<imgCpy.height()-1;j++)
+        {
+            QRgb rgb = imgCpy.pixel(i,j);
+
+            int rouge = (qRed(rgb)-127>0)?qRed(rgb)-127:0;
+            int vert = (qGreen(rgb)-127>0)?qGreen(rgb)-127:0;
+            int bleu =(qBlue(rgb)-127>0)?qBlue(rgb)-127:0;
+
+            int resR = qRed(rgb)+(10.0/100.0)*(rouge);
+            int resG = qGreen(rgb)+(10.0/100.0)*(vert);
+            int resB = qBlue(rgb)+(10.0/100.0)*(bleu);
+
+            imgCpy.setPixel(i,j,qRgb(resR,resG,resB));
+        }
+    }
+
+    //Adaptation à la taille de la fenetre
+    QSize size(ui->label_image->width(), ui->label_image->height());
+    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+    //Affichage
+    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
 }
 
 void MainWindow::about()
@@ -353,5 +386,3 @@ QPixmap MainWindow::Mat2QPixmap(const Mat &mat)
     p.convertFromImage(QImage((const unsigned char*)(rgb.data), rgb.cols, rgb.rows, QImage::Format_RGB888));
     return p;
 }
-
-

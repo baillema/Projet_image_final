@@ -122,6 +122,7 @@
     <addaction name="actionNoir_et_blanc"/>
     <addaction name="actionInversion"/>
     <addaction name="actionFlou"/>
+    <addaction name="actionContraste"/>
    </widget>
    <widget class="QMenu" name="menuAide">
     <property name="title">
@@ -170,6 +171,11 @@
   <action name="actionFlou">
    <property name="text">
     <string>Flou</string>
+   </property>
+  </action>
+  <action name="actionContraste">
+   <property name="text">
+    <string>Contraste</string>
    </property>
   </action>
  </widget>

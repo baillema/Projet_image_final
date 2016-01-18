@@ -40,6 +40,7 @@ protected slots:
     void noir_et_blanc(); //mettre une image en noir et blanc
     void inversion();
     void flou();
+    void contraste();
 
 private:
 
