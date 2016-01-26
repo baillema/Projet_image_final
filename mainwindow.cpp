@@ -72,31 +72,29 @@ void MainWindow::loadImage()
 void MainWindow::ouvrir()
 {
     fileName = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "Images (*.png *.gif *.jpg *.jpeg)");
-     if(fileName!=NULL)
-     {
-         QImage image(fileName);
-         image1 = image;
-         if (image1.isNull())
-         {
-             QMessageBox::information(this, "MainWindow", tr("ne peut pas être chargé").arg(fileName));
-             return;
-         }
+    if(fileName!=NULL)
+    {
+        QImage image(fileName);
+        image1 = image;
+        if (image1.isNull())
+        {
+            QMessageBox::information(this, "MainWindow", tr("ne peut pas être chargé").arg(fileName));
+            return;
+        }
         // int fact = image1.depth()/8;
-         //traiterImage = new TraiterImage(image1.height(), fact*image1.width());
-         this->loadImage();
+        //traiterImage = new TraiterImage(image1.height(), fact*image1.width());
+        this->loadImage();
 
-         //Afficher les histogrammes
-         afficher_histogramme_rgb(QImage2Mat(image1));
-         //QImage image2 = histogramme_yuv(image1);
-         //afficher_histogramme_yuv(QImage2Mat(image2));
+        //Afficher les histogrammes
+        afficher_histogramme_rgb(QImage2Mat(image1));
+        //QImage image2 = histogramme_yuv(image1);
+        //afficher_histogramme_yuv(QImage2Mat(image2));
+    }
 
-     }
-
-    else{
-           QMessageBox::information(this, "Fichier", "Vous n'avez rien sélectiooné\n");
-
-
-     }
+    else
+    {
+        QMessageBox::information(this, "Fichier", "Vous n'avez rien sélectiooné\n");
+    }
 
 }
 
@@ -122,10 +120,12 @@ void MainWindow::initialiser()
     {
         QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
                                  "pour charger une image, aller dans le menu fichier->ouvrir,"
-                                    "sélectionner une image ou faites Ctrl+O");
+                                 "sélectionner une image ou faites Ctrl+O");
         return;
     }
     this->loadImage();
+
+    //Affichage des histogrammmes
     ui->label_histo1->show();
     ui->label_histo2->show();
     ui->label_histo3->show();
@@ -140,148 +140,26 @@ void MainWindow::noir_et_blanc()
     {
         QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
                                  "pour charger une image, aller dans le menu fichier->ouvrir,"
-                                    "sélectionner une image ou faites Ctrl+O");
-        return;
+                                 "sélectionner une image ou faites Ctrl+O");
     }
-    QImage imgCpy = image1;
 
-    for(int i = 0; i<imgCpy.width(); i++)
+    else
     {
-        for(int j = 0; j<imgCpy.height(); j++)
+        QImage imgCpy = image1;
+
+        for(int i = 0; i<imgCpy.width(); i++)
         {
-            QRgb rgb = imgCpy.pixel(i,j);
-
-            //Calcul par moyenne
-            int res = (qGreen(rgb)+qRed(rgb)+qBlue(rgb))/3;
-
-            //Calcul par maximun
-            //int resM = max(max(qGreen(rgb),qRed(rgb)),qBlue(rgb));
-
-            imgCpy.setPixel(i,j,qRgb(res,res,res));
-        }
-    }
-
-    //Adaptation à la taille de la fenetre
-    QSize size(ui->label_image->width(), ui->label_image->height());
-    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
-
-    //Affichage
-    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
-    ui->label_histo1->hide();
-    ui->label_histo2->hide();
-    ui->label_histo3->hide();
-}
-
-//Filtre d'inversion
-void MainWindow::inversion()
-{
-    if(image1.isNull())
-    {
-        QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
-                                 "pour charger une image, aller dans le menu fichier->ouvrir,"
-                                    "sélectionner une image ou faites Ctrl+O");
-        return;
-    }
-    QImage imgCpy = image1;
-
-    imgCpy.invertPixels();
-
-    //Adaptation à la taille de la fenetre
-    QSize size(ui->label_image->width(), ui->label_image->height());
-    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
-
-    //Affichage
-    ui->label_histo1->hide();
-    ui->label_histo2->hide();
-    ui->label_histo3->hide();
-    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
-}
-
-//Filtre de flou
-void MainWindow::flou()
-{
-    if(image1.isNull())
-    {
-        QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
-                                 "pour charger une image, aller dans le menu fichier->ouvrir,"
-                                    "sélectionner une image ou faites Ctrl+O");
-        return;
-    }
-    QImage imgCpy = image1;
-
-    for(int i = 1; i<imgCpy.width()-1;i++)
-    {
-        for(int j = 1; j<imgCpy.height()-1;j++)
-        {
-            QRgb gauche = imgCpy.pixel(i-1,j);
-            QRgb droite = imgCpy.pixel(i+1,j);
-            QRgb haut = imgCpy.pixel(i,j+1);
-            QRgb bas = imgCpy.pixel(i,j-1);
-
-            int resR = (qRed(haut)+qRed(bas)+qRed(gauche)+qRed(droite))/4;
-            int resG = (qGreen(haut)+qGreen(bas)+qGreen(gauche)+qGreen(droite))/4;
-            int resB = (qBlue(haut)+qBlue(bas)+qBlue(gauche)+qBlue(droite))/4;
-
-            imgCpy.setPixel(i,j, qRgb(resR, resG, resB));
-        }
-    }
-
-    //Adaptation à la taille de la fenetre
-    QSize size(ui->label_image->width(), ui->label_image->height());
-    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
-
-    //Affichage
-    ui->label_histo1->hide();
-    ui->label_histo2->hide();
-    ui->label_histo3->hide();
-    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
-}
-
-//Filtre de contraste (correspond à l'accentuation des contours)
-void MainWindow::contraste()
-{
-    QImage imgCpy = image1;
-
-        for(int i = 1; i<imgCpy.width()-1;i++)
-        {
-            for(int j = 1; j<imgCpy.height()-1;j++)
+            for(int j = 0; j<imgCpy.height(); j++)
             {
-                //Case centrale
-                QRgb rgb = image1.pixel(i,j);
-                int rouge = qRed(rgb);
-                int vert = qGreen(rgb);
-                int bleu =  qBlue(rgb);
+                QRgb rgb = imgCpy.pixel(i,j);
 
-                //Case droite
-                QRgb rgbD = image1.pixel(i+1,j);
-                int rougeD = qRed(rgbD);
-                int vertD = qGreen(rgbD);
-                int bleuD =  qBlue(rgbD);
+                //Calcul par moyenne
+                int res = (qGreen(rgb)+qRed(rgb)+qBlue(rgb))/3;
 
-                //Case gauche
-                QRgb rgbG = image1.pixel(i-1,j);
-                int rougeG = qRed(rgbG);
-                int vertG = qGreen(rgbG);
-                int bleuG =  qBlue(rgbG);
+                //Calcul par maximun
+                //int resM = max(max(qGreen(rgb),qRed(rgb)),qBlue(rgb));
 
-                //Case haut
-                QRgb rgbH = image1.pixel(i,j+1);
-                int rougeH = qRed(rgbH);
-                int vertH = qGreen(rgbH);
-                int bleuH =  qBlue(rgbH);
-
-                //Case bas
-                QRgb rgbB = image1.pixel(i,j-1);
-                int rougeB = qRed(rgbB);
-                int vertB = qGreen(rgbB);
-                int bleuB =  qBlue(rgbB);
-
-                //Calcul du résultat
-                int resR = (5*rouge-(rougeD+rougeG+rougeH+rougeB)>255) ? 255 : 5*rouge-(rougeD+rougeG+rougeH+rougeB);
-                int resG = (5*vert-(vertD+vertG+vertH+vertB)>255) ? 255 : 5*vert-(vertD+vertG+vertH+vertB);
-                int resB = (5*bleu-(bleuD+bleuG+bleuH+bleuB)>255) ? 255 : 5*bleu-(bleuD+bleuG+bleuH+bleuB);
-
-                imgCpy.setPixel(i,j,qRgb(resR,resG,resB));
+                imgCpy.setPixel(i,j,qRgb(res,res,res));
             }
         }
 
@@ -291,69 +169,202 @@ void MainWindow::contraste()
 
         //Affichage
         ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+
+        //On enlève les histogrammes (faux)
+        ui->label_histo1->hide();
+        ui->label_histo2->hide();
+        ui->label_histo3->hide();
+    }
+}
+
+//Filtre d'inversion
+void MainWindow::inversion()
+{
+    if(image1.isNull())
+    {
+        QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
+                                 "pour charger une image, aller dans le menu fichier->ouvrir,"
+                                 "sélectionner une image ou faites Ctrl+O");
+    }
+
+    else
+    {
+        QImage imgCpy = image1;
+
+        imgCpy.invertPixels();
+
+        //Adaptation à la taille de la fenetre
+        QSize size(ui->label_image->width(), ui->label_image->height());
+        imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+        //Affichage
+        ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+
+        //On enlève les histogrammes (faux)
+        ui->label_histo1->hide();
+        ui->label_histo2->hide();
+        ui->label_histo3->hide();
+    }
+}
+
+//Filtre de flou
+void MainWindow::flou()
+{
+    if(image1.isNull())
+    {
+        QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
+                                 "pour charger une image, aller dans le menu fichier->ouvrir,"
+                                 "sélectionner une image ou faites Ctrl+O");
+    }
+
+    else
+    {
+        QImage imgCpy = image1;
+
+        for(int i = 1; i<imgCpy.width()-1;i++)
+        {
+            for(int j = 1; j<imgCpy.height()-1;j++)
+            {
+                QRgb gauche = imgCpy.pixel(i-1,j);
+                QRgb droite = imgCpy.pixel(i+1,j);
+                QRgb haut = imgCpy.pixel(i,j+1);
+                QRgb bas = imgCpy.pixel(i,j-1);
+
+                int resR = (qRed(haut)+qRed(bas)+qRed(gauche)+qRed(droite))/4;
+                int resG = (qGreen(haut)+qGreen(bas)+qGreen(gauche)+qGreen(droite))/4;
+                int resB = (qBlue(haut)+qBlue(bas)+qBlue(gauche)+qBlue(droite))/4;
+
+                imgCpy.setPixel(i,j, qRgb(resR, resG, resB));
+            }
+        }
+
+        //Adaptation à la taille de la fenetre
+        QSize size(ui->label_image->width(), ui->label_image->height());
+        imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+        //Affichage
+        ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
+
+        //On enlève les histogrammes (faux)
+        ui->label_histo1->hide();
+        ui->label_histo2->hide();
+        ui->label_histo3->hide();
+    }
+}
+
+//Filtre de contraste (correspond à l'accentuation des contours)
+void MainWindow::contraste()
+{
+    QImage imgCpy = image1;
+
+    for(int i = 1; i<imgCpy.width()-1;i++)
+    {
+        for(int j = 1; j<imgCpy.height()-1;j++)
+        {
+            //Case centrale
+            QRgb rgb = image1.pixel(i,j);
+            int rouge = qRed(rgb);
+            int vert = qGreen(rgb);
+            int bleu =  qBlue(rgb);
+
+            //Case droite
+            QRgb rgbD = image1.pixel(i+1,j);
+            int rougeD = qRed(rgbD);
+            int vertD = qGreen(rgbD);
+            int bleuD =  qBlue(rgbD);
+
+            //Case gauche
+            QRgb rgbG = image1.pixel(i-1,j);
+            int rougeG = qRed(rgbG);
+            int vertG = qGreen(rgbG);
+            int bleuG =  qBlue(rgbG);
+
+            //Case haut
+            QRgb rgbH = image1.pixel(i,j+1);
+            int rougeH = qRed(rgbH);
+            int vertH = qGreen(rgbH);
+            int bleuH =  qBlue(rgbH);
+
+            //Case bas
+            QRgb rgbB = image1.pixel(i,j-1);
+            int rougeB = qRed(rgbB);
+            int vertB = qGreen(rgbB);
+            int bleuB =  qBlue(rgbB);
+
+            //Calcul du résultat
+            int resR = (5*rouge-(rougeD+rougeG+rougeH+rougeB)>255) ? 255 : 5*rouge-(rougeD+rougeG+rougeH+rougeB);
+            int resG = (5*vert-(vertD+vertG+vertH+vertB)>255) ? 255 : 5*vert-(vertD+vertG+vertH+vertB);
+            int resB = (5*bleu-(bleuD+bleuG+bleuH+bleuB)>255) ? 255 : 5*bleu-(bleuD+bleuG+bleuH+bleuB);
+
+            imgCpy.setPixel(i,j,qRgb(resR,resG,resB));
+        }
+    }
+
+    //Adaptation à la taille de la fenetre
+    QSize size(ui->label_image->width(), ui->label_image->height());
+    imgCpy = imgCpy.scaled(size, Qt::KeepAspectRatio);
+
+    //Affichage
+    ui->label_image->setPixmap(QPixmap::fromImage(imgCpy));
 }
 
 void MainWindow::about()
 {
     QMessageBox::about(this, "A propos de l'application",
                        tr("<p>Cette <b> application </b> a pour objectif de s'initier au traitrment d'image en C++ avec Qt"  ));
-
 }
+
 void MainWindow::fermer()
 {
     qApp->exit();
 }
 
-
 void MainWindow::afficher_histogramme_rgb(Mat src)
 {
-  //  const char*c = file.toStdString().c_str();
-   // Mat src = imread(c);
+    //  const char*c = file.toStdString().c_str();
+    // Mat src = imread(c);
+
     vector<Mat>tab = histogramme(src);
-    for(int i = 0; i<3; i++){
+    for(int i = 0; i<3; i++)
+    {
         if(i == 0)
         {
             QPixmap image_histo = Mat2QPixmap(tab[i]);
             //int fact1 = image_histo.depth()/8;
-          //  traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
+            //  traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
 
             QSize size(ui->label_histo1->width(), ui->label_histo1->height());
             QImage image2 = image_histo.toImage();
             image2.scaled(size, Qt::KeepAspectRatio);
             ui->label_histo1->setPixmap(QPixmap::fromImage(image2));
-
         }
-        else{
+
+        else
+        {
+
             if(i == 1)
             {
                 QPixmap image_histo = Mat2QPixmap(tab[i]);
-              //  int fact1 = image_histo.depth()/8;
-              //  traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
+                //  int fact1 = image_histo.depth()/8;
+                //  traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
                 QSize size(ui->label_histo2->width(), ui->label_histo2->height());
                 QImage image2 = image_histo.toImage();
                 image2.scaled(size, Qt::KeepAspectRatio);
                 ui->label_histo2->setPixmap(QPixmap::fromImage(image2));
-
             }
+
             else
             {
                 QPixmap image_histo = Mat2QPixmap(tab[i]);
-               // int fact1 = image_histo.depth()/8;
-            //    traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
+                // int fact1 = image_histo.depth()/8;
+                //    traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
                 QSize size(ui->label_histo2->width(), ui->label_histo2->height());
                 QImage image2 = image_histo.toImage();
                 image2.scaled(size, Qt::KeepAspectRatio);
                 ui->label_histo3->setPixmap(QPixmap::fromImage(image2));
-
             }
         }
-
-
-
-
-
     }
-
 }
 
 
@@ -361,20 +372,16 @@ void MainWindow::afficher_histogramme_rgb(Mat src)
 cv::Mat MainWindow::QImage2Mat(QImage& img)
 {
     cv::Mat tmp(img.height(),img.width(),CV_8UC3,(uchar*)img.bits(),img.bytesPerLine());
-       cv::Mat result; // deep copy just in case (my lack of knowledge with open cv)
-       cvtColor(tmp, result,CV_BGR2RGB);
-       return result;
-
+    cv::Mat result; // deep copy just in case (my lack of knowledge with open cv)
+    cvtColor(tmp, result,CV_BGR2RGB);
+    return result;
 }
 
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
     rubberBand->setGeometry(QRect(myPoint, event->pos()).normalized());
-
-
 }
-
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
@@ -387,50 +394,44 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         rubberBand->show();
 
     }
-
-
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-   QPoint p1 = mapToGlobal(myPoint);
-   QPoint p2 = event->globalPos();
-   //p1 = ui->label_image->mapFromGlobal(p1);
-   //p2 = ui->label_image->mapFromGlobal(p2);
-   double X = image1.width();
+    QPoint p1 = mapToGlobal(myPoint);
+    QPoint p2 = event->globalPos();
+    //p1 = ui->label_image->mapFromGlobal(p1);
+    //p2 = ui->label_image->mapFromGlobal(p2);
+    double X = image1.width();
     double Y = image1.height();
-   QPixmap originalQpix(*ui->label_image->pixmap());
-   //X = originalQpix.width() / X;
- //  Y = originalQpix.height() / Y;
-   /*p1.setX(int(p1.x() * X));
+    QPixmap originalQpix(*ui->label_image->pixmap());
+    //X = originalQpix.width() / X;
+    //  Y = originalQpix.height() / Y;
+    /*p1.setX(int(p1.x() * X));
    p1.setY(int(p1.y()* Y));
 
    p2.setX(int(p2.x() * X));
    p2.setY(int(p2.y() * Y));*/
-   if(X-1 < p1.x()){
-       p1.setX(int(X));
-   }
-   if(Y-1 < p1.y()){
-       p2.setX(int(Y));
-   }
-   if(X-1 < p2.x()){
-       p2.setX(int(X));
-   }
+    if(X-1 < p1.x()){
+        p1.setX(int(X));
+    }
+    if(Y-1 < p1.y()){
+        p2.setX(int(Y));
+    }
+    if(X-1 < p2.x()){
+        p2.setX(int(X));
+    }
 
     if(Y-1 < p2.y()){
-       p2.setY(int(Y));
+        p2.setY(int(Y));
     }
-   QRect rect(p1, p2);
+    QRect rect(p1, p2);
 
-   if(ui->actionDecoupage->isChecked())
-   {
-       rubberBand->hide();
-       QImage image = cropImage(rect);
-
-
-
-  }
-
+    if(ui->actionDecoupage->isChecked())
+    {
+        rubberBand->hide();
+        QImage image = cropImage(rect);
+    }
 }
 
 void MainWindow::cropper()
@@ -439,7 +440,7 @@ void MainWindow::cropper()
     {
         QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
                                  "pour charger une image, aller dans le menu fichier->ouvrir,"
-                                    "sélectionner une image ou faites Ctrl+O");
+                                 "sélectionner une image ou faites Ctrl+O");
         return;
     }
 
@@ -457,21 +458,18 @@ void MainWindow::cropper()
 QImage MainWindow::cropImage(QRect rect)
 {
     if(ui->label_image->pixmap() != NULL){
-    QPixmap oldPix(*ui->label_image->pixmap());
-    QImage image = oldPix.toImage();
-    QImage imageCopy = image.copy(rect);
-    ui->label_image->setPixmap(QPixmap::fromImage(imageCopy));
-    return imageCopy;
+        QPixmap oldPix(*ui->label_image->pixmap());
+        QImage image = oldPix.toImage();
+        QImage imageCopy = image.copy(rect);
+        ui->label_image->setPixmap(QPixmap::fromImage(imageCopy));
+        return imageCopy;
     }
     else{
 
-         QMessageBox::warning(this, "Image", "Aucune image à cropper\n");
+        QMessageBox::warning(this, "Image", "Aucune image à cropper\n");
     }
 
 }
-
-
-
 
 QPixmap MainWindow::IPlImage2QImage(const IplImage *newImage)
 {
@@ -540,23 +538,23 @@ vector<Mat> MainWindow::histogramme(Mat &img)
     {
         for(int j=0;j<bins-1;j++)
         {
-           if( hist[i].at<int>(j) > hmax[i] )
-           {
+            if( hist[i].at<int>(j) > hmax[i] )
+            {
 
-               hmax[i] = hist[i].at<int>(j);
-           }
-           //Wut ?
-           else
-           {
+                hmax[i] = hist[i].at<int>(j);
+            }
+            //Wut ?
+            else
+            {
 
-           }
+            }
         }
     }
 
     //Nouvel Ajout a modifier aprés
     //QLabel *myimage = new QLabel();
-   // myimage->setBackgroundRole(QPalette::Dark);
-   // myimage->setScaledContents(true);
+    //myimage->setBackgroundRole(QPalette::Dark);
+    //myimage->setScaledContents(true);
 
     //const char*wname[3] = {"blue", "green", "red"};
     Scalar colors[3] = {Scalar(255,0,0), Scalar(0,255,0), Scalar(0,0,255)};
@@ -574,16 +572,16 @@ vector<Mat> MainWindow::histogramme(Mat &img)
 
             line(canavas[i], Point(j,rows), Point(j,rows-(hist[i].at<int>(j)*rows/hmax[i])), s, 1, 8, 0); //nc = 1  ? Scalar(200,200,200): colors[i],
         }
-    // imshow(nc ==1 ? "value" : wname[i], canavas[i]);}
-    //  QLabel label(ui->Tab1);
-    //label.setPixmap(Mat2QPixmap(canavas[i]));
+        // imshow(nc ==1 ? "value" : wname[i], canavas[i]);}
+        //  QLabel label(ui->Tab1);
+        //label.setPixmap(Mat2QPixmap(canavas[i]));
 
-    //QPixmap pix = Mat2QPixmap(canavas[i]);
-    //  int fact1 = pix.depth()/8;
-    //  traiterImage = new TraiterImage(pix.height(), fact1*pix.width() );
-    //      myimage->setPixmap(pix);
-    //    ui->verticalLayout->addWidget(myimage);
-    //load image histogramme
+        //QPixmap pix = Mat2QPixmap(canavas[i]);
+        //  int fact1 = pix.depth()/8;
+        //  traiterImage = new TraiterImage(pix.height(), fact1*pix.width() );
+        //      myimage->setPixmap(pix);
+        //    ui->verticalLayout->addWidget(myimage);
+        //load image histogramme
     }
 
     return canavas;
@@ -601,49 +599,45 @@ QPixmap MainWindow::Mat2QPixmap(const Mat &mat)
 
 void MainWindow::creer_fenetre_redimension()
 {
-   if(image1.isNull())
+    if(image1.isNull())
     {
         QMessageBox::information(this, "MainWindow", "Veillez chargez une image,"
                                  "pour charger une image, aller dans le menu fichier->ouvrir,"
-                                    "sélectionner une image ou faites Ctrl+O");
+                                 "sélectionner une image ou faites Ctrl+O");
         return;
     }
-   formRedimensionnement *formulaire = new formRedimensionnement;
+    formRedimensionnement *formulaire = new formRedimensionnement;
 
-   connect(formulaire, SIGNAL(recupererValeur(int,int)), this, SLOT(redimensionner(int,int)));
-
-
-
+    connect(formulaire, SIGNAL(recupererValeur(int,int)), this, SLOT(redimensionner(int,int)));
 }
-
 
 void MainWindow::redimensionner(int largeur, int hauteur)
 {
     QImage image =  image1.scaled(largeur, hauteur, Qt::IgnoreAspectRatio, Qt::FastTransformation);
-     ui->label_image->setPixmap(QPixmap::fromImage(image));
+    ui->label_image->setPixmap(QPixmap::fromImage(image));
 }
 
 QImage MainWindow::histogramme_yuv(QImage image)
 {
     QImage image_yuv;
-      for(int i = 0; i<image.width(); i++)
-      {
-          for(int j = 0; j<image.height(); j++)
-          {
-              QRgb rgb = image.pixel(i,j);
-              int y = (0.3*qRed(rgb) +0.6*qGreen(rgb) + 0.1*qBlue(rgb));
-                y = (y>255 ? 255 : y);
-              int u =(-0.3*qRed(rgb) -0.6*qGreen(rgb) + 0.9*qBlue(rgb));
-              u = (u>255 ? 255 : u);
-              int v =(0.7*qRed(rgb) - 0.6*qGreen(rgb) - 0.1*qBlue(rgb));
-              y = (v>255 ? 255 : u);
+    for(int i = 0; i<image.width(); i++)
+    {
+        for(int j = 0; j<image.height(); j++)
+        {
+            QRgb rgb = image.pixel(i,j);
+            int y = (0.3*qRed(rgb) +0.6*qGreen(rgb) + 0.1*qBlue(rgb));
+            y = (y>255 ? 255 : y);
+            int u =(-0.3*qRed(rgb) -0.6*qGreen(rgb) + 0.9*qBlue(rgb));
+            u = (u>255 ? 255 : u);
+            int v =(0.7*qRed(rgb) - 0.6*qGreen(rgb) - 0.1*qBlue(rgb));
+            y = (v>255 ? 255 : u);
 
-              image_yuv.setPixel(i,j,qRgb(y,u,v));
+            image_yuv.setPixel(i,j,qRgb(y,u,v));
 
-          }
-      }
+        }
+    }
 
-      return image_yuv;
+    return image_yuv;
 }
 
 void MainWindow::afficher_histogramme_yuv(Mat src)
@@ -681,11 +675,5 @@ void MainWindow::afficher_histogramme_yuv(Mat src)
 
             }
         }
-
-
-
-
-
     }
-
 }
