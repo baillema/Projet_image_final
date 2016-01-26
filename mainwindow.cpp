@@ -50,6 +50,7 @@ void MainWindow::creer_connexions()
     QObject::connect(ui->actionInversion, SIGNAL(triggered()), this, SLOT(inversion()));
     QObject::connect(ui->actionFlou, SIGNAL(triggered()), this, SLOT(flou()));
     QObject::connect(ui->actionContraste, SIGNAL(triggered()), this, SLOT(contraste()));
+    QObject::connect(ui->bouttonCrop, SIGNAL(clicked()), this, SLOT(cropper()));
 }
 
 //Chargement d'une image en fonction de sa taille
@@ -63,70 +64,32 @@ void MainWindow::loadImage()
 //Ouverture et affichage d'une image
 void MainWindow::ouvrir()
 {
-    QString fichier = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "Images (*.png *.gif *.jpg *.jpeg)");
+    fileName = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "Images (*.png *.gif *.jpg *.jpeg)");
+     if(fileName!=NULL)
+     {
+         QImage image(fileName);
+         image1 = image;
+         if (image1.isNull())
+         {
+             QMessageBox::information(this, "MainWindow", tr("ne peut pas être chargé").arg(fileName));
+             return;
+         }
+         int fact = image1.depth()/8;
+         traiterImage = new TraiterImage(image1.height(), fact*image1.width());
+         this->loadImage();
 
-    if(fichier != NULL)
-    {
-        QImage image(fichier);
-        image1 = image;
+         //Afficher les histogrammes
+         afficher_histogramme_rgb(QImage2Mat(image1));
+        // afficher_histogramme_yuv(fileName);
 
-        if (image1.isNull())
-        {
-            QMessageBox::information(this, "MainWindow", tr("Erreur lors du chargement de l'image").arg(fichier));
-            return;
-        }
+     }
 
-        int fact = image1.depth()/8;
-        traiterImage = new TraiterImage(image1.height(), fact*image1.width());
-        this->loadImage();
+    else{
+           QMessageBox::information(this, "Fichier", "Vous n'avez rien sélectiooné\n");
 
-        //Affichage des histogrammes
-        const char*c = fichier.toStdString().c_str();
-        Mat src = imread(c);
-        vector<Mat>tab = histogramme(src);
-        for(int i = 0; i<3; i++)
-        {
-            if(i == 0)
-            {
-                QPixmap image_histo = Mat2QPixmap(tab[i]);
-                int fact1 = image_histo.depth()/8;
-                traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
-                QSize size(ui->label_histo1->width(), ui->label_histo1->height());
-                QImage image2 = image_histo.toImage();
-                image2.scaled(size, Qt::KeepAspectRatio);
-                ui->label_histo1->setPixmap(QPixmap::fromImage(image2));
-            }
-            else
-            {
-                if(i == 1)
-                {
-                    QPixmap image_histo = Mat2QPixmap(tab[i]);
-                    int fact1 = image_histo.depth()/8;
-                    traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
-                    QSize size(ui->label_histo2->width(), ui->label_histo2->height());
-                    QImage image2 = image_histo.toImage();
-                    image2.scaled(size, Qt::KeepAspectRatio);
-                    ui->label_histo2->setPixmap(QPixmap::fromImage(image2));
-                }
 
-                else
-                {
-                    QPixmap image_histo = Mat2QPixmap(tab[i]);
-                    int fact1 = image_histo.depth()/8;
-                    traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
-                    QSize size(ui->label_histo2->width(), ui->label_histo2->height());
-                    QImage image2 = image_histo.toImage();
-                    image2.scaled(size, Qt::KeepAspectRatio);
-                    ui->label_histo3->setPixmap(QPixmap::fromImage(image2));
-                }
-            }
-        }
-    }
+     }
 
-   else
-    {
-          QMessageBox::information(this, "Fichier", "Vous n'avez rien sélectionné.\n");
-    }
 }
 
 //Enregistrement d'une image
@@ -261,6 +224,152 @@ void MainWindow::fermer()
 {
     qApp->exit();
 }
+
+
+void MainWindow::afficher_histogramme_rgb(Mat src)
+{
+  //  const char*c = file.toStdString().c_str();
+   // Mat src = imread(c);
+    vector<Mat>tab = histogramme(src);
+    for(int i = 0; i<3; i++){
+        if(i == 0)
+        {
+            QPixmap image_histo = Mat2QPixmap(tab[i]);
+            //int fact1 = image_histo.depth()/8;
+          //  traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
+
+            QSize size(ui->label_histo1->width(), ui->label_histo1->height());
+            QImage image2 = image_histo.toImage();
+            image2.scaled(size, Qt::KeepAspectRatio);
+            ui->label_histo1->setPixmap(QPixmap::fromImage(image2));
+
+        }
+        else{
+            if(i == 1)
+            {
+                QPixmap image_histo = Mat2QPixmap(tab[i]);
+              //  int fact1 = image_histo.depth()/8;
+              //  traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
+                QSize size(ui->label_histo2->width(), ui->label_histo2->height());
+                QImage image2 = image_histo.toImage();
+                image2.scaled(size, Qt::KeepAspectRatio);
+                ui->label_histo2->setPixmap(QPixmap::fromImage(image2));
+
+            }
+            else
+            {
+                QPixmap image_histo = Mat2QPixmap(tab[i]);
+               // int fact1 = image_histo.depth()/8;
+            //    traiter_histo = new TraiterImage(image_histo.height(), fact1*image_histo.width());
+                QSize size(ui->label_histo2->width(), ui->label_histo2->height());
+                QImage image2 = image_histo.toImage();
+                image2.scaled(size, Qt::KeepAspectRatio);
+                ui->label_histo3->setPixmap(QPixmap::fromImage(image2));
+
+            }
+        }
+
+
+
+
+
+    }
+
+}
+
+
+
+cv::Mat MainWindow::QImage2Mat(QImage& img)
+{
+    cv::Mat tmp(img.height(),img.width(),CV_8UC3,(uchar*)img.bits(),img.bytesPerLine());
+       cv::Mat result; // deep copy just in case (my lack of knowledge with open cv)
+       cvtColor(tmp, result,CV_BGR2RGB);
+       return result;
+
+}
+
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    rubberBand->setGeometry(QRect(myPoint, event->pos()).normalized());
+
+
+}
+
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+
+    if(ui->label_image->underMouse())
+    {
+        myPoint = event->pos();
+        rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+        rubberBand->setGeometry(QRect(myPoint, QSize()));
+        rubberBand->show();
+
+    }
+
+
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+   QPoint p1 = mapToGlobal(myPoint);
+   QPoint p2 = event->globalPos();
+   p1 = ui->label_image->mapFromGlobal(p1);
+   p2 = ui->label_image->mapFromGlobal(p2);
+   double X = ui->label_image->rect().width();
+   double Y = ui->label_image->rect().height();
+   QPixmap originalQpix(*ui->label_image->pixmap());
+   X = originalQpix.width() / X;
+   Y = originalQpix.height() / Y;
+   p1.setX(int(p1.x() * X));
+   p1.setY(int(p1.y()* Y));
+
+   p2.setX(int(p2.x() * X));
+   p2.setY(int(p2.y() * Y));
+   QRect rect(p1, p2);
+
+   if(ui->bouttonCrop->isChecked())
+   {
+       rubberBand->hide();
+   QImage image = cropImage(rect);
+
+
+
+  }
+
+}
+
+void MainWindow::cropper()
+{
+    if(rubberBand != NULL && ui->label_image->pixmap() !=NULL)
+    {
+        rubberBand->hide();
+        QRect myRect= rubberBand->rect();
+        QImage myImage =  cropImage(myRect);
+        Mat imageCrop = QImage2Mat(myImage);
+        afficher_histogramme_rgb(imageCrop);
+    }
+
+}
+
+QImage MainWindow::cropImage(QRect rect)
+{
+    if(ui->label_image->pixmap() != NULL){
+    QPixmap oldPix(*ui->label_image->pixmap());
+    QImage image = oldPix.toImage();
+    QImage imageCopy = image.copy(rect);
+    ui->label_image->setPixmap(QPixmap::fromImage(imageCopy));
+    return imageCopy;
+    }
+    else
+         QMessageBox::warning(this, "Image", "Aucune image à cropper\n");
+
+}
+
+
+
 
 QPixmap MainWindow::IPlImage2QImage(const IplImage *newImage)
 {

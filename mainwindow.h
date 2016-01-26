@@ -9,7 +9,8 @@
 #include<opencv2/video/background_segm.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
 #include<opencv2/highgui/highgui.hpp>
-
+#include<QMouseEvent>
+#include<QRubberBand>
 using namespace cv;
 using namespace std;
 
@@ -41,20 +42,32 @@ protected slots:
     void inversion();
     void flou();
     void contraste();
+     void cropper();
 
 private:
 
     QPixmap Mat2QPixmap(const Mat&);  //convertir un Mat en QPixmap
+    QImage  cropImage(QRect);//découpaer l'image
+     void afficher_histogramme_rgb(Mat); //afficher l'histogramme en couleur
     void afficher_histogramme();      //Afficher les histogrammes de ccouleurs de l'image
     vector<Mat> histogramme(Mat&);  //Créer l'histogramme de couleurs de l'image
     void creer_connexions();       //créer les connexions
     void loadImage();             //charger l'image
     void creer_shortcut();        //creer les raccourcis
     QPixmap IPlImage2QImage(const IplImage*);  //Convertir une IplImage en QImage
+    cv::Mat QImage2Mat(QImage&);  //convertir QImage en Mat
     TraiterImage*traiterImage;  //traitement de l'image
     TraiterImage*traiter_histo;//Traitement des histgrammes
     QString fileName; //fichier pour ouverture de l'image
     QImage image1;  //image a ouvrir
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent*);
+    void mouseMoveEvent(QMouseEvent*);
+    QMouseEvent*event;
+    QRubberBand*rubberBand;  //découper l'image
+    QPoint myPoint;         //Point pour connaitre la position de la souris
+
+
     Ui::MainWindow *ui;//fenêtre principale
 };
 
