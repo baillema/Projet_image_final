@@ -31,7 +31,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private slots:
+
 protected slots:
     //Les slots
     void ouvrir();  //ouvrir l'image
@@ -42,14 +42,18 @@ protected slots:
     void inversion();
     void flou();
     void contraste();
-     void cropper();
+    void cropper();
+    void creer_fenetre_redimension();
+    void initialiser();//revenir à l'image de départ
+    void redimensionner(int largeur, int hauteur);
 
 private:
-
+    QImage  histogramme_yuv(QImage image);
     QPixmap Mat2QPixmap(const Mat&);  //convertir un Mat en QPixmap
     QImage  cropImage(QRect);//découpaer l'image
      void afficher_histogramme_rgb(Mat); //afficher l'histogramme en couleur
     void afficher_histogramme();      //Afficher les histogrammes de ccouleurs de l'image
+    void afficher_histogramme_yuv(Mat);
     vector<Mat> histogramme(Mat&);  //Créer l'histogramme de couleurs de l'image
     void creer_connexions();       //créer les connexions
     void loadImage();             //charger l'image

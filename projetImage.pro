@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     traiterImage.cpp \
-    algo.cpp
+    algo.cpp \
+    formRedimensionnement.cpp
 
 HEADERS  += mainwindow.h \
-    traiterImage.h
+    traiterImage.h \
+    formRedimensionnement.h
 
 FORMS    += mainwindow.ui
 
