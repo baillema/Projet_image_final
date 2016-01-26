@@ -81,8 +81,8 @@ void MainWindow::ouvrir()
              QMessageBox::information(this, "MainWindow", tr("ne peut pas être chargé").arg(fileName));
              return;
          }
-         int fact = image1.depth()/8;
-         traiterImage = new TraiterImage(image1.height(), fact*image1.width());
+        // int fact = image1.depth()/8;
+         //traiterImage = new TraiterImage(image1.height(), fact*image1.width());
          this->loadImage();
 
          //Afficher les histogrammes
@@ -450,8 +450,10 @@ QImage MainWindow::cropImage(QRect rect)
     ui->label_image->setPixmap(QPixmap::fromImage(imageCopy));
     return imageCopy;
     }
-    else
+    else{
+
          QMessageBox::warning(this, "Image", "Aucune image à cropper\n");
+    }
 
 }
 
@@ -491,7 +493,7 @@ vector<Mat> MainWindow::histogramme(Mat &img)
     vector<Mat>hist(nc);  //tableau d'histogrammes
 
     //initialiser l'histogramme
-    for(int i = 0; i<hist.size();i++)
+    for(int i = 0; i<(int)hist.size();i++)
     {
         hist[i] = Mat::zeros(1, bins, CV_32SC1);
 
