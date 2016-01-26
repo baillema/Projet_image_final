@@ -14,9 +14,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+<<<<<<< HEAD
     traiterImage.cpp \
     algo.cpp \
     formRedimensionnement.cpp
+=======
+    traiterImage.cpp
+>>>>>>> 05b2b9748a5c0099b3760698a008a27361ed04cc
 
 HEADERS  += mainwindow.h \
     traiterImage.h \
